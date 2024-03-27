@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_DATABASE: financeapp
+      DB_USERNAME: kev
+      DB_PASSWORD: Ko9_Hu3_Fap6
+
+  db:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: Ko9_Hu3_Fap6
+      MYSQL_DATABASE: financeapp
+      MYSQL_USER: kev
+      MYSQL_PASSWORD: Ko9_Hu3_Fap6
+    command: ["--default-authentication-plugin=mysql_native_password"]
+
+

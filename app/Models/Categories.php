@@ -14,6 +14,6 @@ class Categories extends Model
      * @var string[]
      */
     protected $fillable = [
-        'name', 'description'
+        'name', 'description','user_id','check'
     ];
 }

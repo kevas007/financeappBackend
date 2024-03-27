@@ -6,7 +6,10 @@ use App\Models\Categories;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCategoriesRequest;
 use App\Http\Requests\UpdateCategoriesRequest;
+use App\Models\Expenses;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 class CategoriesController extends Controller
 {
     /**
@@ -14,9 +17,70 @@ class CategoriesController extends Controller
      */
     public function index()
     {
-        //
-    }
+        try {
+            $user = auth()->user();
 
+            $data = DB::table('categories')
+                ->where('user_id', $user->id)
+             
+                ->get();
+            
+        
+            // Crée une nouvelle catégorie avec les données validées
+        
+            
+            return response()->json([
+                'message' => 'catégories get successfuly',
+                'status' => 200,
+                'categories' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            // Log the error or handle it accordingly
+            return response()->json([
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+        
+    }
+    /**
+     * Display a listing of the resource.
+     */
+    public function allExpenses(){
+        try {
+            $user = auth()->user();
+            
+            $currentMonthStart = Carbon::now()->startOfMonth();
+            $currentMonthEnd = Carbon::now()->endOfMonth();
+
+            $data = DB::table('expenses')
+            ->join('user_expenses', 'expenses.id', '=', 'user_expenses.expense_id')
+            ->where('user_expenses.user_id', $user->id)
+            ->whereBetween('expenses.created_at', [$currentMonthStart, $currentMonthEnd])
+            ->sum('expenses.price');
+        
+        // Réinitialisation du total à 0 à minuit le dernier jour du mois
+        if (Carbon::now()->isSameDay($currentMonthEnd)) {
+            $totalExpenses = 0;
+        }
+        
+ 
+            // Crée une nouvelle catégorie avec les données validées
+        
+            
+            return response()->json([
+                'message' => 'expenses get successfuly',
+                'status' => 200,
+                'expenses' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            // Log the error or handle it accordingly
+            return response()->json([
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -33,15 +97,18 @@ class CategoriesController extends Controller
     
        
         try {
+           
             $data = $request->validate([
                 'name' => 'required|string',
-                'description' => 'required|string'
+                'check'=>'required'
             ]);
-    
+            $user = auth()->user();
+       
             // Crée une nouvelle catégorie avec les données validées
             $categorie = Categories::create([
                 'name' => $data['name'],
-                'description' => $data['description']
+                'description' => $data['description'],
+                'user_id' => $user->id // Utilisation de l'ID de l'utilisateur actuellement authentifié
             ]);
             
             return response()->json([
@@ -92,15 +159,30 @@ class CategoriesController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $category = Categories::find($id);
         try {
-            $category = Categories::findOrFail($id);
+           
     
-            $data = $request->validate([
-                'name' => 'required|string',
-                'description' => 'required|string'
-            ]);
+            if (!$category) {
+                return response()->json([
+                    'message' => 'Category not found',
+                    'status' => 404
+                ], 404);
+            }
     
-            $category->update($data);
+            $data = $request->all();
+    
+            // Vérifier si le champ 'name' est présent dans les données de la requête
+            if (isset($data['name'])) {
+                $category->name = $data['name'];
+            }
+    
+            // Vérifier si le champ 'description' est présent dans les données de la requête
+            if (isset($data['description'])) {
+                $category->description = $data['description'];
+            }
+    
+            $category->save();
     
             return response()->json([
                 'message' => 'Category updated successfully',
@@ -114,6 +196,7 @@ class CategoriesController extends Controller
             ], 500);
         }
     }
+    
 
     /**
      * Remove the specified resource from storage.

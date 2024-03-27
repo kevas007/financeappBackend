@@ -50,5 +50,24 @@ class LoginController extends Controller
             ], 500);
         }
     }
-    
+    public function logout(Request $request)
+{
+    try {
+        // Récupère l'utilisateur authentifié
+        $user = Auth::user();
+        
+        // Révoque le jeton d'accès actuel de l'utilisateur
+        $user->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logout successful',
+            'status' => 200,
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'An error occurred: ' . $e->getMessage(),
+            'status' => 500
+        ], 500);
+    }
+}
 }

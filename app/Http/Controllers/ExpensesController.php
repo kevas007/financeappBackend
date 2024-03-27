@@ -38,7 +38,6 @@ class ExpensesController extends Controller
             $data = $request->validate([
                 'name' => 'required|string',
                 'price' => 'required|numeric',
-                'description' => 'required|string',
                 'category_id' => 'required',
                 'category_id.*' => 'exists:categories,id', // Assurez-vous que chaque catégorie existe dans la table des catégories
             ]);
@@ -146,8 +145,30 @@ class ExpensesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Expenses $expenses)
+    public function destroy(Request $request, $id)
     {
-        //
+        try {
+            // Récupère la dépense existante
+            $expense = Expenses::findOrFail($id);
+            
+            // Supprime la dépense
+            $expense->delete();
+    
+            // Supprime les enregistrements associés dans la table pivot 'expenses_categories'
+            DB::table('expenses_categories')->where('expense_id', $id)->delete();
+    
+            // Supprime les enregistrements associés dans la table pivot 'user_expenses'
+            DB::table('user_expenses')->where('expense_id', $id)->delete();
+    
+            return response()->json([
+                'message' => 'Expense deleted successfully',
+                'status' => 200,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
     }
 }
