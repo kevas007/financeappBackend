@@ -100,14 +100,17 @@ class CategoriesController extends Controller
            
             $data = $request->validate([
                 'name' => 'required|string',
-                'check'=>'required'
+                'description' => 'nullable|string', // La description n'est pas obligatoire
+                'check' => 'nullable|boolean', // Le champ 'check' est optionnel et doit être un booléen
             ]);
+            
             $user = auth()->user();
        
             // Crée une nouvelle catégorie avec les données validées
             $categorie = Categories::create([
                 'name' => $data['name'],
-                'description' => $data['description'],
+                'description' => $data['description']  ?? null,
+                'check' => $data['check'] ?? false,
                 'user_id' => $user->id // Utilisation de l'ID de l'utilisateur actuellement authentifié
             ]);
             
