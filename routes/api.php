@@ -29,7 +29,8 @@ Route::post('/login', [LoginController::class, 'login'])
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [LoginController::class, 'logout']);
-    Route::get('/expenses', [CategoriesController::class, 'allExpenses']);
+    Route::get('/allexpenses', [CategoriesController::class, 'allExpenses']);
+    Route::get('/MonthlyExpenses', [CategoriesController::class, 'MonthlyExpenses']);
     // Placez ici les routes nécessitant une authentification Sanctum
     
     Route::post('/category/add', [CategoriesController::class, 'store']);
@@ -38,8 +39,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/category', [CategoriesController::class, 'index']);
     Route::delete('/category/{id}/delete', [CategoriesController::class, 'destroy']);
     //
-    Route::post('/expense', [ExpensesController::class, 'store']);
-    Route::put('/expense/{id}/show', [ExpensesController::class, 'update']);
+    Route::get('/expenses', [ExpensesController::class, 'index']);
+    Route::post('/expense/add', [ExpensesController::class, 'store']);
+    Route::put('/expense/{id}/update', [ExpensesController::class, 'update']);
     Route::delete('/expense/{id}/delete', [ExpensesController::class, 'destroy']);
     // Vous pouvez ajouter d'autres routes nécessitant une authentification Sanctum ici
 });

@@ -18,7 +18,33 @@ class ExpensesController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $user = auth()->user();
+
+            $data = DB::table('expenses as e')
+            ->join('expenses_categories as ec', 'e.id', '=', 'ec.expense_id')
+            ->join('categories as c', 'c.id', '=', 'ec.category_id')
+            ->select('e.*', 'c.name as category_name')
+            ->where('user_id', $user->id)
+            ->get();
+        
+            
+        
+            // Crée une nouvelle catégorie avec les données validées
+        
+            
+            return response()->json([
+                'message' => 'expenses get successfuly',
+                'status' => 200,
+                'expenses' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            // Log the error or handle it accordingly
+            return response()->json([
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
     }
 
     /**
@@ -37,16 +63,16 @@ class ExpensesController extends Controller
         try {
             $data = $request->validate([
                 'name' => 'required|string',
-                'price' => 'required|numeric',
-                'category_id' => 'required',
-                'category_id.*' => 'exists:categories,id', // Assurez-vous que chaque catégorie existe dans la table des catégories
+                'price' => 'required',
+                'description' => 'nullable|string', // La description n'est pas obligatoire
+                'category_id' => 'required'
             ]);
     
             // Crée une nouvelle dépense
             $expense = Expenses::create([
                 'name' => $data['name'],
                 'price' => $data['price'],
-                'description' => $data['description'],
+                'description' => $data['description']  ?? null,
             ]);
             
             // Attache les catégories à la dépense dans la table pivot 'expenses_categories'

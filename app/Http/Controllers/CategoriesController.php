@@ -55,6 +55,8 @@ class CategoriesController extends Controller
 
             $data = DB::table('expenses')
             ->join('user_expenses', 'expenses.id', '=', 'user_expenses.expense_id')
+            ->join('expenses_categories as ec', 'expenses.id', '=', 'ec.expense_id')
+            ->join('categories as c', 'c.id', '=', 'ec.category_id')
             ->where('user_expenses.user_id', $user->id)
             ->whereBetween('expenses.created_at', [$currentMonthStart, $currentMonthEnd])
             ->sum('expenses.price');
@@ -71,7 +73,8 @@ class CategoriesController extends Controller
             return response()->json([
                 'message' => 'expenses get successfuly',
                 'status' => 200,
-                'expenses' => $data
+                'expenses' => $data,
+                'current_month' => Carbon::now()->format('F Y')
             ], 200);
         } catch (\Exception $e) {
             // Log the error or handle it accordingly
@@ -84,8 +87,42 @@ class CategoriesController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
+    public function MonthlyExpenses()
+    {   
+        try {
+            $user = auth()->user();
+            
+            $currentMonthStart = Carbon::now()->startOfMonth();
+            $currentMonthEnd = Carbon::now()->endOfMonth();
+
+            $data = DB::table('expenses')
+            ->join('user_expenses', 'expenses.id', '=', 'user_expenses.expense_id')
+            ->join('expenses_categories as ec', 'expenses.id', '=', 'ec.expense_id')
+            ->join('categories as c', 'c.id', '=', 'ec.category_id')
+            ->where('user_expenses.user_id', $user->id)
+            ->whereBetween('expenses.created_at', [$currentMonthStart, $currentMonthEnd])
+            ->selectRaw('MONTH(expenses.created_at) as month, SUM(expenses.price) as total')
+            ->groupByRaw('MONTH(expenses.created_at)')
+            ->get();
+        
+        // Réinitialisation du total à 0 à minuit le dernier jour du mois
+ 
+            // Crée une nouvelle catégorie avec les données validées
+        
+            
+            return response()->json([
+                'message' => 'expenses get successfuly',
+                'status' => 200,
+                'expenses' => $data,
+                'current_month' => Carbon::now()->format('F Y')
+            ], 200);
+        } catch (\Exception $e) {
+            // Log the error or handle it accordingly
+            return response()->json([
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
         
     }
 
