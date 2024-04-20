@@ -8,7 +8,7 @@ RUN apt-get update && \
     unzip && \
     rm -rf /var/lib/apt/lists/* && \
     wget -qO /tmp/installer.php https://getcomposer.org/installer && \
-    php /tmp/installer.php -- --install-dir=/usr/local/bin --filename=composer && \
+    php /tmp/installer.php --install-dir=/usr/local/bin --filename=composer && \
     rm /tmp/installer.php
 
 # Installation des dépendances nécessaires
@@ -27,7 +27,7 @@ WORKDIR /var/www/html
 # Copier seulement le fichier composer.json et composer.lock pour profiter du cache Docker
 COPY composer.json composer.lock ./
 
-# Installer les dépendances PHP
+# Installer les dépendances PHP, y compris Laravel
 RUN composer install --no-scripts --no-autoloader
 
 # Copier les fichiers du projet dans le conteneur

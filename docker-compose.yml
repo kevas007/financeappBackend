@@ -27,12 +27,3 @@ services:
       MYSQL_USER: kev
       MYSQL_PASSWORD: Ko9_Hu3_Fap6
 
-  nginx:
-    image: nginx:latest
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - .:/var/www/html
-    depends_on:
-      - app
