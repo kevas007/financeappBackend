@@ -33,7 +33,7 @@ services:
     container_name: nginx-inventaire
     restart: unless-stopped
     ports:
-      - "8080:81" # Port 81 pour nginx
+      - "8000:80" # Port 81 pour nginx
     volumes:
       - ./:/var/www
       - ./docker-compose/nginx:/etc/nginx/conf.d/
