@@ -21,10 +21,10 @@ services:
     container_name: db-fiance
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE:  ${DB_DATABASE}
-      MYSQL_ROOT_PASSWORD:  ${DB_PASSWORD}
-      MYSQL_PASSWORD:  ${DB_PASSWORD}
-      MYSQL_USER:  ${DB_USERNAME}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
     networks:
       - fiance
 
@@ -33,7 +33,7 @@ services:
     container_name: nginx-inventaire
     restart: unless-stopped
     ports:
-      - "8000:80" # Port 81 pour nginx
+      - "8000:80"
     volumes:
       - ./:/var/www
       - ./docker-compose/nginx:/etc/nginx/conf.d/
@@ -46,10 +46,10 @@ services:
     restart: unless-stopped
     environment:
       PMA_HOST: db
-      MYSQL_USER:  ${DB_USERNAME}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD} # Assurez-vous de définir la même valeur que pour MYSQL_ROOT_PASSWORD dans le service db
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "8080:82" # Port 8080 pour phpMyAdmin
+      - "8080:82"
     networks:
       - fiance
 
