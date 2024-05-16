@@ -33,5 +33,8 @@ RUN mkdir -p storage bootstrap/cache && \
     chown -R $user:www-data storage bootstrap/cache && \
     chmod -R 775 storage bootstrap/cache
 
+# Exposer le port 8000
+EXPOSE 8000
+
 # Passer à l'utilisateur défini par les arguments
 USER $user
